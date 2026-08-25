@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HONGKONG HOSTING | Discord Bot Hosting</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#060606; --bg-card:#0d0d0d; --bg-elevated:#121212; --bg-hover:#1c1c1c;
+  --red-deep:#3d0000; --red-primary:#8B0000; --red-bright:#DC143C; --red-neon:#ff0a3c;
+  --red-glow:rgba(220,20,60,0.35);
+  --white:#ffffff; --white-soft:#f5f5f5; --white-dim:#cccccc;
+  --text:#f0f0f0; --text-secondary:#b0b0b0; --text-muted:#666666;
+  --border:#1f0000; --border-light:#2a0000; --border-white:rgba(255,255,255,0.06);
+  --success:#00e676; --warning:#ff9100; --danger:#ff1744; --info:#00b0ff; --gold:#ffd700;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; line-height:1.6; }
+.bg-grid { position:fixed; top:0; left:0; width:100%; height:100%; background-image:linear-gradient(rgba(139,0,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(139,0,0,0.03) 1px,transparent 1px); background-size:50px 50px; pointer-events:none; z-index:1; }
+.bg-radial { position:fixed; top:-40%; left:-40%; width:180%; height:180%; background:radial-gradient(ellipse at 40% 30%,rgba(139,0,0,0.1) 0%,transparent 55%),radial-gradient(ellipse at 60% 70%,rgba(255,255,255,0.02) 0%,transparent 40%); pointer-events:none; z-index:1; animation:bgShift 18s ease-in-out infinite; }
+@keyframes bgShift { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-3%,2%) scale(1.02)} 66%{transform:translate(2%,-2%) scale(0.98)} }
+.scanlines { position:fixed; top:0; left:0; width:100%; height:100%; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(139,0,0,0.012) 2px,rgba(139,0,0,0.012) 4px); pointer-events:none; z-index:9999; }
+.particle { position:fixed; width:2px; height:2px; background:var(--red-bright); border-radius:50%; pointer-events:none; z-index:2; animation:floatUp linear infinite; opacity:0.5; }
+@keyframes floatUp { 0%{transform:translateY(100vh) scale(0); opacity:0} 10%{opacity:0.5} 90%{opacity:0.5} 100%{transform:translateY(-10vh) scale(1); opacity:0} }
+.app { position:relative; z-index:10; min-height:100vh; }
+.header { position:sticky; top:0; z-index:1000; background:rgba(6,6,6,0.88); backdrop-filter:blur(24px) saturate(1.3); -webkit-backdrop-filter:blur(24px) saturate(1.3); border-bottom:1px solid var(--border); padding:0 1.5rem; height:64px; display:flex; align-items:center; justify-content:space-between; }
+.logo { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:var(--white); letter-spacing:3px; display:flex; align-items:center; gap:10px; }
+.logo span { color:var(--red-bright); text-shadow:0 0 20px var(--red-glow); }
+.logo-icon { width:30px; height:30px; position:relative; }
+.logo-icon::before { content:''; position:absolute; inset:0; border:2px solid var(--red-bright); transform:rotate(45deg); animation:logoSpin 8s linear infinite; box-shadow:0 0 15px var(--red-glow); }
+.logo-icon::after { content:''; position:absolute; inset:5px; background:linear-gradient(135deg,var(--red-primary),var(--red-bright)); transform:rotate(45deg); animation:logoSpin 8s linear infinite reverse; }
+@keyframes logoSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.nav-desktop { display:flex; gap:0.5rem; align-items:center; }
+.nav-link { color:var(--text-muted); text-decoration:none; font-weight:600; font-size:0.82rem; padding:8px 14px; border-radius:8px; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); position:relative; text-transform:uppercase; letter-spacing:0.5px; }
+.nav-link:hover, .nav-link.active { color:var(--white); background:rgba(220,20,60,0.1); }
+.nav-link.active::before { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:16px; height:2px; background:linear-gradient(90deg,var(--red-primary),var(--red-bright)); border-radius:2px; box-shadow:0 0 10px var(--red-glow); }
+.user-chip { display:flex; align-items:center; gap:10px; padding:5px 14px 5px 5px; background:var(--bg-card); border:1px solid var(--border-white); border-radius:50px; cursor:pointer; transition:all 0.3s; }
+.user-chip:hover { border-color:var(--red-primary); box-shadow:0 0 20px var(--red-glow); }
+.user-avatar { width:34px; height:34px; border-radius:50%; border:2px solid var(--red-primary); object-fit:cover; }
+.user-name { font-weight:700; font-size:0.82rem; color:var(--white); }
+.mobile-menu-btn { display:none; background:none; border:none; color:var(--white); font-size:1.4rem; cursor:pointer; }
+.mobile-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(6,6,6,0.96); backdrop-filter:blur(24px); border-top:1px solid var(--border); padding:6px 0; z-index:1000; justify-content:space-around; }
+.mobile-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-muted); text-decoration:none; font-size:0.6rem; font-weight:700; padding:4px 10px; border-radius:10px; transition:all 0.3s; text-transform:uppercase; }
+.mobile-nav-item.active { color:var(--red-bright); }
+.mobile-nav-item svg { width:20px; height:20px; }
+.page { display:none; padding:1.5rem; max-width:1200px; margin:0 auto; animation:pageIn 0.5s cubic-bezier(0.4,0,0.2,1); padding-bottom:100px; }
+.page.active { display:block; }
+@keyframes pageIn { from{opacity:0; transform:translateY(25px) scale(0.98)} to{opacity:1; transform:translateY(0) scale(1)} }
+.glass-card { background:rgba(13,13,13,0.75); backdrop-filter:blur(12px); border:1px solid var(--border-white); border-radius:18px; padding:1.5rem; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); position:relative; overflow:hidden; }
+.glass-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:2px; background:linear-gradient(90deg,transparent,var(--red-primary),var(--red-bright),var(--white),var(--red-primary),transparent); opacity:0; transition:opacity 0.3s; }
+.glass-card:hover::before { opacity:1; }
+.glass-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,0.1); box-shadow:0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(220,20,60,0.08); }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+.stat-card { display:flex; flex-direction:column; gap:0.4rem; }
+.stat-label { color:var(--text-muted); font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; }
+.stat-value { font-family:'Orbitron',sans-serif; font-size:1.6rem; font-weight:900; color:var(--white); text-shadow:0 0 15px rgba(255,255,255,0.1); }
+.stat-value.red { color:var(--red-bright); text-shadow:0 0 20px var(--red-glow); }
+.stat-icon { position:absolute; top:1.5rem; right:1.5rem; font-size:2.2rem; opacity:0.06; color:var(--white); }
+.section-title { font-family:'Orbitron',sans-serif; font-size:1rem; color:var(--white); margin-bottom:1.2rem; display:flex; align-items:center; gap:10px; text-transform:uppercase; letter-spacing:1.5px; }
+.section-title .line { flex:1; height:1px; background:linear-gradient(90deg,var(--border-white),transparent); }
+.btn { padding:12px 28px; border:none; border-radius:12px; font-family:'Inter',sans-serif; font-weight:700; font-size:0.88rem; cursor:pointer; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); text-transform:uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; justify-content:center; gap:8px; position:relative; overflow:hidden; }
+.btn::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); transform:translateX(-100%); transition:transform 0.6s; }
+.btn:hover::after { transform:translateX(100%); }
+.btn-primary { background:linear-gradient(135deg,var(--red-primary),var(--red-bright)); color:var(--white); box-shadow:0 4px 20px var(--red-glow); }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px var(--red-glow); }
+.btn-white { background:linear-gradient(135deg,var(--white-soft),var(--white)); color:#000; font-weight:800; box-shadow:0 4px 20px rgba(255,255,255,0.15); }
+.btn-white:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,255,255,0.25); }
+.btn-outline { background:transparent; border:1.5px solid var(--border-white); color:var(--white); }
+.btn-outline:hover { background:rgba(255,255,255,0.05); border-color:var(--red-bright); color:var(--red-bright); }
+.btn-gold { background:linear-gradient(135deg,#b8860b,var(--gold)); color:#000; font-weight:800; box-shadow:0 4px 20px rgba(255,215,0,0.2); }
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,215,0,0.3); }
+.btn-sm { padding:8px 16px; font-size:0.78rem; }
+.btn-block { width:100%; }
+.btn-danger { background:rgba(255,23,68,0.08); border:1.5px solid rgba(255,23,68,0.3); color:var(--danger); }
+.btn-danger:hover { background:rgba(255,23,68,0.15); }
+.input-group { margin-bottom:1rem; }
+.input-label { display:block; color:var(--text-secondary); margin-bottom:0.4rem; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+.input { width:100%; padding:14px 18px; background:var(--bg-elevated); border:1.5px solid var(--border-white); border-radius:14px; color:var(--white); font-family:'Inter',sans-serif; font-size:0.95rem; transition:all 0.3s; outline:none; }
+.input:focus { border-color:var(--red-bright); box-shadow:0 0 0 3px rgba(220,20,60,0.08), 0 0 25px var(--red-glow); }
+.input::placeholder { color:var(--text-muted); }
+.input:invalid { border-color:var(--danger); }
+.login-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:2rem; position:relative; }
+.login-card { width:100%; max-width:460px; background:rgba(13,13,13,0.85); backdrop-filter:blur(24px); border:1px solid var(--border-white); border-radius:24px; padding:2.5rem; position:relative; overflow:hidden; box-shadow:0 0 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(220,20,60,0.05); }
+.login-card::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(220,20,60,0.06) 0%,transparent 60%); animation:rotate 25s linear infinite; }
+.login-content { position:relative; z-index:2; }
+.login-logo { font-family:'Orbitron',sans-serif; font-size:1.8rem; font-weight:900; color:var(--white); margin-bottom:0.3rem; letter-spacing:4px; }
+.login-logo span { color:var(--red-bright); text-shadow:0 0 25px var(--red-glow); }
+.login-subtitle { color:var(--text-muted); font-size:0.85rem; margin-bottom:2rem; }
+.divider { display:flex; align-items:center; gap:1rem; margin:1.5rem 0; color:var(--text-muted); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border-white); }
+.login-form { text-align:left; }
+.login-footer { margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border-white); color:var(--text-muted); font-size:0.8rem; text-align:center; }
+.password-strength { height:4px; border-radius:2px; margin-top:6px; transition:all 0.3s; background:var(--bg-hover); }
+.password-strength.weak { background:var(--danger); box-shadow:0 0 8px var(--danger); }
+.password-strength.medium { background:var(--warning); box-shadow:0 0 8px var(--warning); }
+.password-strength.strong { background:var(--success); box-shadow:0 0 8px var(--success); }
+.strength-label { font-size:0.7rem; margin-top:4px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+.strength-label.weak { color:var(--danger); }
+.strength-label.medium { color:var(--warning); }
+.strength-label.strong { color:var(--success); }
+.toggle-auth { color:var(--red-bright); cursor:pointer; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.plans-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.2rem; margin-bottom:2rem; }
+.plan-card { background:var(--bg-card); border:1px solid var(--border-white); border-radius:20px; padding:2rem; text-align:center; position:relative; transition:all 0.4s; overflow:hidden; }
+.plan-card.featured { border-color:rgba(220,20,60,0.4); box-shadow:0 0 40px rgba(139,0,0,0.12); transform:scale(1.02); }
+.plan-card.featured::before { content:'BEST VALUE'; position:absolute; top:14px; right:-35px; background:linear-gradient(135deg,var(--red-primary),var(--red-bright)); color:var(--white); font-size:0.6rem; font-weight:800; padding:4px 40px; transform:rotate(45deg); letter-spacing:1px; }
+.plan-card:hover { transform:translateY(-6px); box-shadow:0 25px 50px rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.1); }
+.plan-card.featured:hover { transform:translateY(-6px) scale(1.02); }
+.plan-name { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:700; color:var(--white); margin-bottom:0.5rem; letter-spacing:2px; }
+.plan-price { font-family:'Orbitron',sans-serif; font-size:2.2rem; font-weight:900; color:var(--red-bright); text-shadow:0 0 20px var(--red-glow); margin:0.8rem 0; }
+.plan-price span { font-size:0.9rem; color:var(--text-muted); }
+.plan-features { list-style:none; margin:1.2rem 0; text-align:left; }
+.plan-features li { padding:7px 0; color:var(--text-secondary); font-size:0.88rem; display:flex; align-items:center; gap:10px; }
+.plan-features li::before { content:'✓'; color:var(--success); font-weight:900; }
+.plan-status { margin-top:0.8rem; padding:8px; border-radius:10px; font-size:0.8rem; font-weight:700; }
+.plan-status.active { background:rgba(0,230,118,0.08); color:var(--success); border:1px solid rgba(0,230,118,0.2); }
+.plan-status.inactive { background:rgba(255,23,68,0.05); color:var(--danger); border:1px solid rgba(255,23,68,0.15); }
+.upload-zone { border:2px dashed var(--border-white); border-radius:20px; padding:2.5rem 2rem; text-align:center; background:var(--bg-card); transition:all 0.4s; cursor:pointer; position:relative; }
+.upload-zone:hover,.upload-zone.dragover { border-color:var(--red-bright); background:rgba(220,20,60,0.02); box-shadow:0 0 40px var(--red-glow); }
+.upload-zone.uploaded { border-color:var(--success); background:rgba(0,230,118,0.02); }
+.upload-icon { width:56px; height:56px; margin:0 auto 1rem; background:linear-gradient(135deg,var(--red-primary),var(--red-bright)); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow:0 8px 25px var(--red-glow); }
+.upload-text { font-weight:700; color:var(--white); margin-bottom:0.4rem; }
+.upload-hint { color:var(--text-muted); font-size:0.8rem; }
+.file-card { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.2rem; background:var(--bg-elevated); border:1px solid var(--border-white); border-radius:12px; margin-bottom:0.6rem; transition:all 0.3s; }
+.file-card:hover { border-color:rgba(255,255,255,0.1); transform:translateX(3px); }
+.file-info { display:flex; align-items:center; gap:12px; }
+.file-icon { font-size:1.4rem; }
+.file-name { font-weight:700; color:var(--white); font-size:0.9rem; }
+.file-meta { color:var(--text-muted); font-size:0.78rem; }
+.status-pill { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:50px; font-weight:700; font-size:0.82rem; }
+.status-online { background:rgba(0,230,118,0.08); color:var(--success); border:1px solid rgba(0,230,118,0.2); }
+.status-offline { background:rgba(255,23,68,0.06); color:var(--danger); border:1px solid rgba(255,23,68,0.15); }
+.status-dot { width:8px; height:8px; border-radius:50%; animation:pulse 2.5s infinite; }
+.status-online .status-dot { background:var(--success); box-shadow:0 0 10px var(--success); }
+.status-offline .status-dot { background:var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:0.3; transform:scale(0.7)} }
+.terminal-window { background:#000; border:1px solid var(--border-white); border-radius:16px; overflow:hidden; }
+.terminal-header { background:var(--bg-elevated); padding:12px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--border-white); }
+.terminal-dot { width:12px; height:12px; border-radius:50%; }
+.t-red { background:var(--danger); } .t-yellow { background:var(--warning); } .t-green { background:var(--success); }
+.terminal-body { padding:1.5rem; font-family:'Courier New',monospace; font-size:0.82rem; color:#00ff41; height:320px; overflow-y:auto; line-height:1.8; }
+.terminal-line { opacity:0; animation:fadeIn 0.15s forwards; }
+.t-prompt { color:var(--red-bright); font-weight:bold; }
+.t-error { color:var(--danger); } .t-success { color:var(--success); } .t-info { color:var(--info); } .t-warn { color:var(--warning); }
+.terminal-input-line { display:flex; align-items:center; gap:10px; padding:12px 16px; border-top:1px solid var(--border-white); background:var(--bg-elevated); }
+.terminal-input { flex:1; background:transparent; border:none; color:var(--white); font-family:'Courier New',monospace; font-size:0.88rem; outline:none; }
+.redeem-box { display:flex; gap:1rem; margin-bottom:1.2rem; }
+.redeem-box .input { flex:1; }
+.history-item { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.2rem; background:var(--bg-elevated); border-radius:12px; margin-bottom:0.6rem; border-left:3px solid var(--red-primary); transition:all 0.3s; }
+.history-item:hover { background:var(--bg-hover); transform:translateX(3px); }
+.history-code { font-family:'Orbitron',sans-serif; color:var(--red-bright); font-weight:700; font-size:0.9rem; letter-spacing:1px; }
+.history-amount { color:var(--success); font-weight:700; font-size:0.9rem; }
+.admin-badge { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--gold),#b8860b); color:#000; font-weight:800; font-size:0.7rem; padding:4px 12px; border-radius:50px; text-transform:uppercase; letter-spacing:1px; }
+.admin-panel { background:linear-gradient(135deg,rgba(255,215,0,0.04),rgba(139,0,0,0.04)); border:1px solid rgba(255,215,0,0.15); border-radius:20px; padding:2rem; margin-bottom:1.5rem; }
+.admin-panel h3 { font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1rem; display:flex; align-items:center; gap:10px; font-size:1rem; }
+.code-gen-result { background:var(--bg-elevated); border:1.5px dashed var(--gold); border-radius:14px; padding:1.5rem; text-align:center; margin-top:1rem; display:none; }
+.code-gen-result.show { display:block; animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes popIn { from{opacity:0; transform:scale(0.8)} to{opacity:1; transform:scale(1)} }
+.generated-code { font-family:'Orbitron',sans-serif; font-size:1.4rem; color:var(--gold); font-weight:900; letter-spacing:3px; text-shadow:0 0 20px rgba(255,215,0,0.2); margin:0.5rem 0; }
+.codes-table { width:100%; border-collapse:collapse; margin-top:1rem; }
+.codes-table th,.codes-table td { padding:12px 14px; text-align:left; border-bottom:1px solid var(--border-white); }
+.codes-table th { color:var(--text-muted); font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+.codes-table td { color:var(--text); font-size:0.85rem; }
+.codes-table tr:hover td { background:var(--bg-hover); }
+.toast-stack { position:fixed; top:80px; right:1rem; z-index:10000; display:flex; flex-direction:column; gap:0.6rem; max-width:360px; }
+.toast { padding:1rem 1.5rem; border-radius:14px; font-weight:700; font-size:0.88rem; animation:toastSlide 0.4s cubic-bezier(0.175,0.885,0.32,1.275); border-left:4px solid; backdrop-filter:blur(12px); box-shadow:0 10px 40px rgba(0,0,0,0.4); }
+.toast-success { background:rgba(0,230,118,0.08); border-color:var(--success); color:var(--success); }
+.toast-error { background:rgba(255,23,68,0.08); border-color:var(--danger); color:var(--danger); }
+.toast-info { background:rgba(0,176,255,0.08); border-color:var(--info); color:var(--info); }
+.toast-gold { background:rgba(255,215,0,0.08); border-color:var(--gold); color:var(--gold); }
+@keyframes toastSlide { from{transform:translateX(120%) scale(0.9); opacity:0} to{transform:translateX(0) scale(1); opacity:1} }
+.glow-red { animation:glowRed 2.5s ease-in-out infinite alternate; }
+@keyframes glowRed { from{text-shadow:0 0 10px var(--red-glow)} to{text-shadow:0 0 30px var(--red-glow),0 0 60px var(--red-glow)} }
+.glow-white { animation:glowWhite 3s ease-in-out infinite alternate; }
+@keyframes glowWhite { from{text-shadow:0 0 10px rgba(255,255,255,0.1)} to{text-shadow:0 0 30px rgba(255,255,255,0.2),0 0 50px rgba(255,255,255,0.1)} }
+@media (max-width:768px) {
+  .header { padding:0 1rem; height:56px; }
+  .nav-desktop { display:none; }
+  .mobile-menu-btn { display:block; }
+  .mobile-nav { display:flex; }
+  .page { padding:1rem; padding-bottom:90px; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); gap:0.7rem; }
+  .stat-value { font-size:1.2rem; }
+  .plans-grid { grid-template-columns:1fr; }
+  .plan-card.featured { transform:none; }
+  .redeem-box { flex-direction:column; }
+  .login-card { padding:1.5rem; border-radius:20px; }
+  .login-logo { font-size:1.4rem; }
+  .section-title { font-size:0.9rem; }
+  .codes-table { font-size:0.75rem; }
+  .codes-table th,.codes-table td { padding:8px; }
+  .user-name { display:none; }
+  .admin-panel { padding:1.2rem; }
+}
+@media (max-width:480px) {
+  .stats-grid { grid-template-columns:1fr; }
+  .stat-card { padding:1.2rem; }
+  .btn { padding:10px 18px; font-size:0.82rem; }
+  .glass-card { padding:1.2rem; }
+}
+.hidden { display:none !important; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--red-primary); border-radius:3px; }
+::selection { background:var(--red-primary); color:var(--white); }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-radial"></div>
+<div class="scanlines"></div>
+<div id="particles"></div>
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ===== AUTH PAGE ===== -->
+<div class="login-page" id="authPage">
+  <div class="login-card">
+    <div class="login-content">
+      <div class="logo-icon" style="margin:0 auto 0.8rem; width:44px; height:44px;"></div>
+      <h1 class="login-logo glow-white">HONGKONG <span>HOSTING</span></h1>
+      <p class="login-subtitle">Discord Bot Hosting v3.0<br>24/7 Uptime • Auto-Restart • Premium Network</p>
+
+      <!-- LOGIN FORM -->
+      <div id="loginFormBox">
+        <div class="login-form">
+          <div class="input-group">
+            <label class="input-label">Tên đăng nhập</label>
+            <input type="text" class="input" id="loginUsername" placeholder="Ví dụ: Ví dụ con cặc" oninput="validateUsername(this)">
+            <div id="loginUsernameError" style="color:var(--danger); font-size:0.75rem; margin-top:4px; display:none;">❌ Username phải có chữ, số và ký tự đặc biệt (_, -, .)</div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Mật khẩu</label>
+            <input type="password" class="input" id="loginPassword" placeholder="••••••••" oninput="checkPasswordStrength(this.value, 'loginStrength')">
+            <div class="password-strength" id="loginStrength"></div>
+            <div class="strength-label" id="loginStrengthLabel"></div>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="doLogin()" style="margin-top:0.5rem;">🔐 Đăng Nhập</button>
+        </div>
+        <div class="login-footer">
+          Chưa có tài khoản? <span class="toggle-auth" onclick="showRegister()">Đăng ký ngay</span>
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerFormBox" style="display:none;">
+        <div class="login-form">
+          <div class="input-group">
+            <label class="input-label">Tên đăng nhập <span style="color:var(--text-muted); font-size:0.7rem;">(chữ + số + ký tự đặc biệt)</span></label>
+            <input type="text" class="input" id="regUsername" placeholder="Ví dụ: User_123" oninput="validateUsername(this)">
+            <div id="regUsernameError" style="color:var(--danger); font-size:0.75rem; margin-top:4px; display:none;">❌ Phải có ít nhất 1 chữ, 1 số, 1 ký tự đặc biệt (_, -, .)</div>
+            <div id="regUsernameOk" style="color:var(--success); font-size:0.75rem; margin-top:4px; display:none;">✓ Username hợp lệ</div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Email</label>
+            <input type="email" class="input" id="regEmail" placeholder="you@example.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Mật khẩu</label>
+            <input type="password" class="input" id="regPassword" placeholder="••••••••" oninput="checkPasswordStrength(this.value, 'regStrength')">
+            <div class="password-strength" id="regStrength"></div>
+            <div class="strength-label" id="regStrengthLabel"></div>
+            <div style="color:var(--text-muted); font-size:0.7rem; margin-top:4px;">💡 Mật khẩu mạnh: 8+ ký tự, chữ hoa, chữ thường, số, ký tự đặc biệt</div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Xác nhận mật khẩu</label>
+            <input type="password" class="input" id="regConfirm" placeholder="••••••••">
+          </div>
+          <button class="btn btn-white btn-block" onclick="doRegister()" style="margin-top:0.5rem;">📝 Đăng Ký</button>
+        </div>
+        <div class="login-footer">
+          Đã có tài khoản? <span class="toggle-auth" onclick="showLogin()">Đăng nhập</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app hidden" id="mainApp">
+  <header class="header">
+    <div class="logo"><div class="logo-icon"></div>HONGKONG<span>HOSTING</span></div>
+    <nav class="nav-desktop">
+      <a href="#" class="nav-link active" data-page="dashboard" onclick="showPage('dashboard'); return false;">Dashboard</a>
+      <a href="#" class="nav-link" data-page="plans" onclick="showPage('plans'); return false;">Gói VIP</a>
+      <a href="#" class="nav-link" data-page="bots" onclick="showPage('bots'); return false;">Bot</a>
+      <a href="#" class="nav-link" data-page="wallet" onclick="showPage('wallet'); return false;">Ví</a>
+      <a href="#" class="nav-link" data-page="terminal" onclick="showPage('terminal'); return false;">Terminal</a>
+      <a href="#" class="nav-link" data-page="settings" onclick="showPage('settings'); return false;">Cài đặt</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <div class="user-chip" onclick="showPage('settings')">
+        <img class="user-avatar" id="headerAvatar" src="" alt="">
+        <span class="user-name" id="headerName"></span>
+      </div>
+      <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="#" class="mobile-nav-item active" onclick="showPage('dashboard'); return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="showPage('plans'); return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>VIP
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="showPage('bots'); return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/></svg>Bot
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="showPage('wallet'); return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 7v10a2 2 0 0 0 2 2h16v-5"/><circle cx="16" cy="14" r="2"/></svg>Ví
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="showPage('settings'); return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting
+    </a>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="dashboard">
+    <h2 class="section-title"><span style="color:var(--red-bright);">◆</span> Dashboard<span class="line"></span></h2>
+    <div class="stats-grid">
+      <div class="glass-card stat-card">
+        <span class="stat-label">Số Dư</span>
+        <span class="stat-value red" id="dashBalance">0 ₫</span>
+        <span class="stat-icon">💎</span>
+      </div>
+      <div class="glass-card stat-card">
+        <span class="stat-label">Bot Files</span>
+        <span class="stat-value" id="dashBots">0</span>
+        <span class="stat-icon">🤖</span>
+      </div>
+      <div class="glass-card stat-card">
+        <span class="stat-label">Uptime</span>
+        <span class="stat-value" id="dashUptime">0h</span>
+        <span class="stat-icon">⏱️</span>
+      </div>
+      <div class="glass-card stat-card">
+        <span class="stat-label">Gói VIP</span>
+        <span class="stat-value" style="font-size:0.9rem; margin-top:4px;">
+          <span class="status-pill" id="dashPlan" style="padding:6px 14px; font-size:0.75rem;">NONE</span>
+        </span>
+        <span class="stat-icon">👑</span>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-bottom:1.5rem;">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--red-bright); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">🎁 Nhập Code Nhận Tiền</h3>
+      <div class="redeem-box">
+        <input type="text" class="input" id="redeemInput" placeholder="Nhập code..." style="text-transform:uppercase;">
+        <button class="btn btn-primary" onclick="redeemCode()">Nhập Code</button>
+      </div>
+      <p style="color:var(--text-muted); font-size:0.8rem;">💡 Nhập code để nhận tiền vào ví. Code do admin tạo.</p>
+      <div id="redeemHistory" style="margin-top:1rem;"></div>
+    </div>
+
+    <div class="glass-card">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--white); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">⚡ Trạng Thái Hệ Thống</h3>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+        <span class="status-pill status-online" id="sysStatus"><span class="status-dot"></span> SYSTEM ONLINE</span>
+        <span class="status-pill status-offline" id="botStatusPill"><span class="status-dot"></span> BOT OFFLINE</span>
+        <span style="color:var(--text-muted); font-size:0.8rem; margin-left:auto;">Server: HONGKONG-01 | Ping: 8ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANS -->
+  <div class="page" id="plans">
+    <h2 class="section-title"><span style="color:var(--gold);">◆</span> Gói Đăng Ký VIP<span class="line"></span></h2>
+    <div class="plans-grid">
+      <div class="plan-card featured">
+        <div class="plan-name">BASIC</div>
+        <div class="plan-price">10K<span>₫ / tuần</span></div>
+        <ul class="plan-features">
+          <li>2 Bot Discord</li>
+          <li>Uptime: 24/7</li>
+          <li>Auto-restart</li>
+          <li>Support nhanh</li>
+          <li>Terminal đầy đủ</li>
+        </ul>
+        <button class="btn btn-primary btn-block" onclick="buyPlan('basic',10000,7)">Mua Ngay</button>
+        <div class="plan-status inactive" id="planStatusBasic">Chưa đăng ký</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">PRO</div>
+        <div class="plan-price">30K<span>₫ / tháng</span></div>
+        <ul class="plan-features">
+          <li>5 Bot Discord</li>
+          <li>Uptime: 24/7</li>
+          <li>Auto-restart + Backup</li>
+          <li>Support ưu tiên</li>
+          <li>Custom domain</li>
+          <li>API Access</li>
+        </ul>
+        <button class="btn btn-gold btn-block" onclick="buyPlan('pro',30000,30)">Mua Ngay</button>
+        <div class="plan-status inactive" id="planStatusPro">Chưa đăng ký</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">ULTIMATE</div>
+        <div class="plan-price">100K<span>₫ / năm</span></div>
+        <ul class="plan-features">
+          <li>∞ Bot Discord</li>
+          <li>Uptime: 99.99%</li>
+          <li>Dedicated Server</li>
+          <li>Support 24/7</li>
+          <li>White-label</li>
+          <li>Source code bot</li>
+          <li>Team collaboration</li>
+        </ul>
+        <button class="btn btn-gold btn-block" onclick="buyPlan('ultimate',100000,365)">Mua Ngay</button>
+        <div class="plan-status inactive" id="planStatusUltimate">Chưa đăng ký</div>
+      </div>
+    </div>
+    <div class="glass-card" style="margin-top:1rem;">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">📜 Gói VIP Của Bạn</h3>
+      <div id="myPlansList"><p style="color:var(--text-muted); text-align:center; padding:2rem;">Bạn chưa đăng ký gói VIP nào</p></div>
+    </div>
+  </div>
+
+  <!-- BOTS -->
+  <div class="page" id="bots">
+    <h2 class="section-title"><span style="color:var(--info);">◆</span> Quản Lý Bot<span class="line"></span></h2>
+    <div class="glass-card" style="margin-bottom:1.5rem;">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--red-bright); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">📤 Upload Bot Code</h3>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Kéo thả file hoặc nhấn để chọn</div>
+        <div class="upload-hint">Hỗ trợ: .js .py .json .env .zip | Tối đa 10MB</div>
+        <input type="file" id="fileInput" multiple style="display:none;" onchange="handleFiles(this.files)">
+      </div>
+      <div id="fileList" style="margin-top:1rem;"></div>
+    </div>
+    <div class="glass-card" id="botControls" style="display:none;">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--white); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">⚡ Điều Khiển</h3>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <button class="btn btn-primary" onclick="startBot()">▶️ Khởi động</button>
+        <button class="btn btn-outline" onclick="stopBot()">⏹️ Dừng</button>
+        <button class="btn btn-outline" onclick="restartBot()">🔄 Restart</button>
+        <button class="btn btn-danger" onclick="clearAllFiles()">🗑️ Xóa tất cả</button>
+      </div>
+      <div>
+        <span class="status-pill status-offline" id="botStatusControl"><span class="status-dot"></span> BOT OFFLINE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLET -->
+  <div class="page" id="wallet">
+    <h2 class="section-title"><span style="color:var(--success);">◆</span> Ví Của Bạn<span class="line"></span></h2>
+    <div class="glass-card" style="text-align:center; padding:2.5rem; margin-bottom:1.5rem; background:linear-gradient(135deg,rgba(139,0,0,0.08),rgba(220,20,60,0.03),rgba(255,255,255,0.02));">
+      <div style="color:var(--text-muted); font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-bottom:0.5rem;">Tổng Số Dư</div>
+      <div style="font-family:'Orbitron',sans-serif; font-size:2.8rem; font-weight:900; color:var(--white); text-shadow:0 0 30px rgba(255,255,255,0.15), 0 0 60px var(--red-glow);" id="walletBalance">0 ₫</div>
+    </div>
+    <div class="glass-card">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--white); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">📜 Lịch Sử Giao Dịch</h3>
+      <div id="walletHistory"></div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="page" id="terminal">
+    <h2 class="section-title"><span style="color:var(--white);">◆</span> System Terminal<span class="line"></span></h2>
+    <div class="glass-card" style="padding:0; overflow:hidden;">
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dot t-red"></div>
+          <div class="terminal-dot t-yellow"></div>
+          <div class="terminal-dot t-green"></div>
+          <span style="color:var(--text-muted); font-size:0.78rem; margin-left:8px;">hongkong@hosting:~</span>
+          <button class="btn btn-sm btn-outline" style="margin-left:auto; padding:4px 12px; font-size:0.68rem;" onclick="clearTerminal()">Clear</button>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-line">HONGKONG HOSTING v3.0.0 — Terminal Ready</div>
+          <div class="terminal-line">Type <span class="t-info">help</span> for available commands</div>
+        </div>
+        <div class="terminal-input-line">
+          <span class="t-prompt">$</span>
+          <input type="text" class="terminal-input" id="terminalInput" placeholder="Nhập lệnh..." onkeypress="if(event.key==='Enter')executeCommand()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="settings">
+    <h2 class="section-title"><span style="color:var(--red-bright);">◆</span> Cài Đặt<span class="line"></span></h2>
+    <div class="glass-card" style="margin-bottom:1.5rem;">
+      <div style="display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem;">
+        <img id="settingsAvatar" src="" style="width:64px; height:64px; border-radius:50%; border:2px solid var(--red-primary); box-shadow:0 0 20px var(--red-glow);">
+        <div>
+          <div style="font-weight:800; font-size:1.1rem; color:var(--white);" id="settingsName"></div>
+          <div style="color:var(--text-muted); font-size:0.82rem;" id="settingsEmail"></div>
+          <div style="margin-top:6px;" id="adminBadgeContainer"></div>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin-panel" id="adminPanel" style="display:none;">
+      <h3>👑 Admin Panel — Tạo Gift Code</h3>
+      <p style="color:var(--text-secondary); margin-bottom:1.2rem; font-size:0.85rem;">Tạo code cho người dùng nhập để nhận tiền</p>
+      <div style="display:grid; grid-template-columns:2fr 1fr auto; gap:1rem; align-items:end;">
+        <div class="input-group">
+          <label class="input-label">Tên code (tự động nếu để trống)</label>
+          <input type="text" class="input" id="adminCodeName" placeholder="Ví dụ: HONGKONG2024" style="text-transform:uppercase;">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Số lần sử dụng</label>
+          <input type="number" class="input" id="adminCodeUses" placeholder="100" value="100" min="1">
+        </div>
+        <button class="btn btn-gold" onclick="generateCode()">Tạo Code</button>
+      </div>
+      <div class="code-gen-result" id="codeGenResult">
+        <div style="color:var(--text-muted); font-size:0.8rem;">Code đã tạo:</div>
+        <div class="generated-code" id="generatedCodeText"></div>
+        <div style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.5rem;" id="generatedCodeInfo"></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="copyGeneratedCode()">📋 Copy</button>
+      </div>
+      <h3 style="margin-top:2rem; margin-bottom:1rem; font-family:'Orbitron',sans-serif; color:var(--gold); font-size:0.95rem; letter-spacing:1px;">📋 Danh Sách Code Đã Tạo</h3>
+      <div style="overflow-x:auto;">
+        <table class="codes-table">
+          <thead><tr><th>Code</th><th>Số lần</th><th>Đã dùng</th><th>Còn lại</th><th>Trạng thái</th></tr></thead>
+          <tbody id="adminCodesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <h3 style="font-family:'Orbitron',sans-serif; color:var(--white); margin-bottom:1rem; font-size:0.95rem; letter-spacing:1px;">🔧 Cài Đặt Tài Khoản</h3>
+      <div class="input-group">
+        <label class="input-label">Tên hiển thị</label>
+        <input type="text" class="input" id="settingDisplayName" placeholder="Tên của bạn">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Email</label>
+        <input type="email" class="input" id="settingEmail" placeholder="Email" disabled style="opacity:0.6;">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const API_BASE = (location.hostname.includes("localhost") || location.hostname === "" || location.protocol === "file:") ? "http://localhost:3000/api" : "https://your-backend.onrender.com/api";
+let currentUser = null, token = localStorage.getItem("hk_token"), botRunning = false, logPollingInterval = null, lastLogTime = 0, uptimeInterval = null, startTime = null;
+
+async function api(endpoint, options = {}) {
+  const url = API_BASE + endpoint;
+  const opts = { headers: { ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }), ...(token ? { "Authorization": "Bearer " + token } : {}) }, ...options };
+  if (opts.body && typeof opts.body === "object" && !(opts.body instanceof FormData)) opts.body = JSON.stringify(opts.body);
+  try {
+    const res = await fetch(url, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+    return data;
+  } catch (e) {
+    if (e.message.includes("Failed to fetch")) throw new Error("Khong the ket noi server. Vui long kiem tra backend da chay chua.");
+    throw e;
+  }
+}
+
+function validateUsername(input) {
+  const val = input.value, hasLetter = /[a-zA-Z]/.test(val), hasNumber = /\d/.test(val), hasSpecial = /[_\-.]/.test(val), isValid = hasLetter && hasNumber && hasSpecial && val.length >= 3;
+  const errEl = document.getElementById(input.id + "Error"), okEl = document.getElementById(input.id + "Ok");
+  if (errEl) errEl.style.display = isValid ? "none" : (val.length > 0 ? "block" : "none");
+  if (okEl) okEl.style.display = isValid ? "block" : "none";
+  input.style.borderColor = val.length > 0 ? (isValid ? "var(--success)" : "var(--danger)") : "";
+  return isValid;
+}
+
+function checkPasswordStrength(password, barId) {
+  const bar = document.getElementById(barId), label = document.getElementById(barId.replace("Strength", "StrengthLabel"));
+  if (!bar) return;
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+  bar.className = "password-strength";
+  if (label) label.className = "strength-label";
+  if (password.length === 0) { bar.style.width = "0%"; if (label) label.textContent = ""; }
+  else if (score <= 1) { bar.classList.add("weak"); bar.style.width = "33%"; if (label) { label.classList.add("weak"); label.textContent = "Yeu"; } }
+  else if (score <= 2) { bar.classList.add("medium"); bar.style.width = "66%"; if (label) { label.classList.add("medium"); label.textContent = "Trung binh"; } }
+  else { bar.classList.add("strong"); bar.style.width = "100%"; if (label) { label.classList.add("strong"); label.textContent = "Manh"; } }
+}
+
+function showRegister() { document.getElementById("loginFormBox").style.display = "none"; document.getElementById("registerFormBox").style.display = "block"; }
+function showLogin() { document.getElementById("registerFormBox").style.display = "none"; document.getElementById("loginFormBox").style.display = "block"; }
+
+async function doRegister() {
+  const username = document.getElementById("regUsername").value.trim(), email = document.getElementById("regEmail").value.trim(), password = document.getElementById("regPassword").value, confirm = document.getElementById("regConfirm").value;
+  if (!validateUsername({ value: username, id: "regUsername" })) { showToast("Username khong hop le!", "error"); return; }
+  if (!email || !email.includes("@")) { showToast("Email khong hop le!", "error"); return; }
+  if (password.length < 6) { showToast("Mat khau phai tu 6 ky tu!", "error"); return; }
+  if (password !== confirm) { showToast("Mat khau xac nhan khong khop!", "error"); return; }
+  try { await api("/auth/register", { method: "POST", body: { username, email, password } }); showToast("Dang ky thanh cong!", "success"); showLogin(); document.getElementById("loginUsername").value = username; }
+  catch (e) { showToast(e.message, "error"); }
+}
+
+async function doLogin() {
+  const username = document.getElementById("loginUsername").value.trim(), password = document.getElementById("loginPassword").value;
+  if (!username) { showToast("Vui long nhap username!", "error"); return; }
+  if (!password) { showToast("Vui long nhap mat khau!", "error"); return; }
+  try {
+    const data = await api("/auth/login", { method: "POST", body: { username, password } });
+    token = data.token; currentUser = data.user; localStorage.setItem("hk_token", token); initApp();
+    showToast("Chao mung, " + (data.user.name || data.user.username) + "!", "success");
+  } catch (e) { showToast(e.message, "error"); }
+}
+function logout() { token = null; currentUser = null; localStorage.removeItem("hk_token"); if (logPollingInterval) clearInterval(logPollingInterval); if (uptimeInterval) clearInterval(uptimeInterval); location.reload(); }
+
+async function initApp() {
+  if (!token) return;
+  try { currentUser = await api("/auth/me"); }
+  catch (e) { showToast("Phien dang nhap het han", "error"); logout(); return; }
+  document.getElementById("authPage").classList.add("hidden");
+  document.getElementById("mainApp").classList.remove("hidden");
+  document.getElementById("headerName").textContent = currentUser.name || currentUser.username;
+  document.getElementById("headerAvatar").src = currentUser.avatar;
+  document.getElementById("settingsName").textContent = currentUser.name || currentUser.username;
+  document.getElementById("settingsEmail").textContent = currentUser.email || "";
+  document.getElementById("settingsAvatar").src = currentUser.avatar;
+  document.getElementById("settingDisplayName").value = currentUser.name || "";
+  document.getElementById("settingEmail").value = currentUser.email || "";
+  initParticles(); await loadDashboard(); await loadPlans(); await loadBotFiles(); await loadBotStatus(); await loadWallet(); checkAdmin();
+  startTime = Date.now(); uptimeInterval = setInterval(updateUptime, 1000);
+  addTerminalLine("User authenticated: " + (currentUser.name || currentUser.username), "success");
+  addTerminalLine("HONGKONG HOSTING v3.0 API connected", "info");
+}
+
+function checkAdmin() {
+  const badgeContainer = document.getElementById("adminBadgeContainer");
+  if (currentUser && currentUser.isAdmin) {
+    badgeContainer.innerHTML = "<span class=\"admin-badge\">👑 ADMIN</span>";
+    document.getElementById("adminPanel").style.display = "block";
+    loadAdminCodes();
+    addTerminalLine("Admin privileges granted", "warn");
+  } else {
+    badgeContainer.innerHTML = "<span class=\"status-pill\" style=\"padding:4px 12px; font-size:0.7rem; background:rgba(0,176,255,0.08); border:1px solid rgba(0,176,255,0.2); color:var(--info);\"><span class=\"status-dot\" style=\"background:var(--info); animation:none;\"></span> USER</span>";
+    document.getElementById("adminPanel").style.display = "none";
+  }
+}
+
+async function loadDashboard() {
+  try {
+    const wallet = await api("/wallet"), plan = await api("/plan/my"), botStatus = await api("/bot/status");
+    document.getElementById("dashBalance").textContent = formatMoney(wallet.balance);
+    document.getElementById("walletBalance").textContent = formatMoney(wallet.balance);
+    document.getElementById("dashBots").textContent = botStatus.files || 0;
+    const planEl = document.getElementById("dashPlan");
+    planEl.textContent = plan.plan ? plan.plan.name.toUpperCase() : "NONE";
+    botRunning = botStatus.running; updateBotStatusUI();
+  } catch (e) { console.error(e); }
+}
+
+function showPage(pageId) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+  document.querySelectorAll(".nav-link").forEach(l => l.classList.toggle("active", l.dataset.page === pageId));
+  document.querySelectorAll(".mobile-nav-item").forEach((l, i) => { const pages = ["dashboard","plans","bots","wallet","settings"]; l.classList.toggle("active", pages[i] === pageId); });
+  if (pageId === "plans") loadPlans();
+  if (pageId === "bots") { loadBotFiles(); loadBotStatus(); }
+  if (pageId === "wallet") loadWallet();
+  if (pageId === "settings") checkAdmin();
+}
+function toggleMobileNav() {}
+function formatMoney(n) { return new Intl.NumberFormat("vi-VN").format(n) + " d"; }
+
+async function redeemCode() {
+  const input = document.getElementById("redeemInput"), code = input.value.trim().toUpperCase();
+  if (!code) { showToast("Vui long nhap code!", "error"); return; }
+  try {
+    const data = await api("/code/redeem", { method: "POST", body: { code } });
+    input.value = ""; showToast("Nhap code thanh cong! +" + formatMoney(data.amount), "success");
+    addTerminalLine("Code redeemed: " + code + " | +" + data.amount + " VND", "success");
+    await loadDashboard(); await loadWallet();
+  } catch (e) { showToast(e.message, "error"); addTerminalLine("Invalid code: " + code, "error"); }
+}
+
+async function loadWallet() {
+  try { const data = await api("/wallet"); document.getElementById("walletBalance").textContent = formatMoney(data.balance); renderTransactions(data.transactions); }
+  catch (e) { console.error(e); }
+}
+function renderTransactions(transactions) {
+  const c = document.getElementById("walletHistory");
+  if (!transactions || !transactions.length) { c.innerHTML = "<p style=\"color:var(--text-muted); text-align:center; padding:2rem;\">Chua co giao dich</p>"; return; }
+  c.innerHTML = transactions.map(t => "<div class=\"history-item\"><div><div style=\"color:var(--white); font-weight:700;\">" + t.type + "</div><div style=\"color:var(--text-muted); font-size:0.78rem;\">" + t.time + "</div></div><div class=\"history-amount\">" + (t.amount >= 0 ? "+" : "") + formatMoney(Math.abs(t.amount)) + "</div></div>").join("");
+}
+function renderRedeemHistory() { document.getElementById("redeemHistory").innerHTML = "<p style=\"color:var(--text-muted); font-size:0.8rem;\">Lich su nhap code xem trong Vi</p>"; }
+
+async function buyPlan(planId, price, days) {
+  try { await api("/plan/buy", { method: "POST", body: { planId } }); showToast("Da mua goi " + planId.toUpperCase() + "!", "success"); addTerminalLine("Plan purchased: " + planId.toUpperCase(), "info"); await loadDashboard(); await loadPlans(); }
+  catch (e) { showToast(e.message, "error"); }
+}
+async function loadPlans() {
+  try {
+    const data = await api("/plan/my");
+    const planStatus = { basic: "inactive", pro: "inactive", ultimate: "inactive" };
+    if (data.plan && data.plan.active) planStatus[data.plan.id] = "active";
+    ["basic","pro","ultimate"].forEach(pid => { const el = document.getElementById("planStatus" + pid.charAt(0).toUpperCase() + pid.slice(1)); if (el) { el.className = "plan-status " + planStatus[pid]; el.textContent = planStatus[pid] === "active" ? "✓ Dang su dung" : "Chua dang ky"; } });
+    const list = document.getElementById("myPlansList");
+    if (!data.plan) { list.innerHTML = "<p style=\"color:var(--text-muted); text-align:center; padding:2rem;\">Ban chua dang ky goi VIP nao</p>"; return; }
+    list.innerHTML = "<div class=\"history-item\" style=\"border-left-color:" + (data.plan.active ? "var(--success)" : "var(--text-muted)") + ";\"><div><div style=\"color:var(--white); font-weight:800;\">" + data.plan.name + " " + (data.plan.active ? "<span style=\"color:var(--success); font-size:0.7rem;\">● ACTIVE</span>" : "") + "</div><div style=\"color:var(--text-muted); font-size:0.78rem;\">Het han: " + new Date(data.plan.expiry).toLocaleString("vi-VN") + "</div></div><div style=\"color:var(--red-bright); font-weight:700;\">" + formatMoney(data.plan.price) + "</div></div>";
+  } catch (e) { console.error(e); }
+}
+
+async function handleFiles(files) {
+  const area = document.getElementById("uploadZone"), formData = new FormData();
+  Array.from(files).forEach(file => formData.append("files", file));
+  area.classList.add("dragover");
+  try {
+    const data = await api("/bot/upload", { method: "POST", body: formData });
+    area.classList.remove("dragover"); area.classList.add("uploaded"); setTimeout(() => area.classList.remove("uploaded"), 1000);
+    showToast(data.message, data.tokenDetected ? "success" : "info");
+    addTerminalLine("Files uploaded: " + data.files.map(f => f.name).join(", ") + (data.tokenDetected ? " | Token detected" : " | No token found"), data.tokenDetected ? "success" : "warn");
+    await loadBotFiles(); await loadDashboard();
+  } catch (e) { area.classList.remove("dragover"); showToast(e.message, "error"); }
+}
+function formatSize(b) { if (!b) return "0 B"; const k = 1024, s = ["B","KB","MB"]; const i = Math.floor(Math.log(b) / Math.log(k)); return parseFloat((b / Math.pow(k, i)).toFixed(2)) + " " + s[i]; }
+async function loadBotFiles() {
+  try {
+    const data = await api("/bot/files"), c = document.getElementById("fileList");
+    if (!data.files || !data.files.length) { c.innerHTML = ""; document.getElementById("botControls").style.display = "none"; return; }
+    c.innerHTML = data.files.map(b => "<div class=\"file-card\"><div class=\"file-info\"><span class=\"file-icon\">📄</span><div><div class=\"file-name\">" + b.name + "</div><div class=\"file-meta\">" + formatSize(b.size) + "</div></div></div><div style=\"display:flex; gap:0.5rem;\"><button class=\"btn btn-danger btn-sm\" onclick=\"deleteFile('" + b.name + "')\">Xoa</button></div></div>").join("");
+    document.getElementById("botControls").style.display = "block";
+  } catch (e) { console.error(e); }
+}
+async function deleteFile(filename) {
+  try { await api("/bot/file/" + encodeURIComponent(filename), { method: "DELETE" }); showToast("Da xoa: " + filename, "info"); await loadBotFiles(); await loadDashboard(); }
+  catch (e) { showToast(e.message, "error"); }
+}
+async function clearAllFiles() {
+  if (!confirm("Xoa tat ca file bot?")) return;
+  try { await api("/bot/files", { method: "DELETE" }); showToast("Da xoa tat ca file", "info"); document.getElementById("botControls").style.display = "none"; botRunning = false; updateBotStatusUI(); stopLogPolling(); await loadDashboard(); }
+  catch (e) { showToast(e.message, "error"); }
+}
+
+const uploadZone = document.getElementById("uploadZone");
+if (uploadZone) {
+  uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+  uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
+  uploadZone.addEventListener("drop", e => { e.preventDefault(); uploadZone.classList.remove("dragover"); handleFiles(e.dataTransfer.files); });
+}
+
+async function startBot() {
+  try { const data = await api("/bot/start", { method: "POST" }); botRunning = true; startTime = Date.now(); updateBotStatusUI(); showToast(data.message, "success"); startLogPolling(); addTerminalLine("Starting bot process...", "info"); }
+  catch (e) { showToast(e.message, "error"); addTerminalLine("Start failed: " + e.message, "error"); }
+}
+async function stopBot() {
+  try { await api("/bot/stop", { method: "POST" }); botRunning = false; updateBotStatusUI(); stopLogPolling(); showToast("Bot da dung!", "info"); addTerminalLine("Bot process terminated", "warn"); }
+  catch (e) { showToast(e.message, "error"); }
+}
+async function restartBot() { await stopBot(); setTimeout(() => startBot(), 1200); showToast("Dang khoi dong lai...", "info"); }
+async function loadBotStatus() {
+  try { const data = await api("/bot/status"); botRunning = data.running; updateBotStatusUI(); if (botRunning) startLogPolling(); }
+  catch (e) { console.error(e); }
+}
+function updateBotStatusUI() {
+  const pills = [document.getElementById("botStatusPill"), document.getElementById("botStatusControl")];
+  pills.forEach(p => { if (!p) return; p.className = "status-pill " + (botRunning ? "status-online" : "status-offline"); p.innerHTML = "<span class=\"status-dot\"></span> BOT " + (botRunning ? "ONLINE" : "OFFLINE"); });
+  document.getElementById("sysStatus").innerHTML = "<span class=\"status-dot\"></span> SYSTEM ONLINE";
+}
+function startLogPolling() {
+  if (logPollingInterval) clearInterval(logPollingInterval);
+  lastLogTime = 0;
+  logPollingInterval = setInterval(async () => {
+    try { const data = await api("/bot/logs?since=" + lastLogTime); if (data.logs && data.logs.length) { data.logs.forEach(l => addTerminalLine(l.message, l.type === "error" ? "error" : l.type === "warn" ? "warn" : "info")); lastLogTime = data.lastTime; } }
+    catch (e) { console.error("Log poll error:", e); }
+  }, 2000);
+}
+function stopLogPolling() { if (logPollingInterval) { clearInterval(logPollingInterval); logPollingInterval = null; } }
+function updateUptime() { if (!startTime || !botRunning) return; const diff = Math.floor((Date.now() - startTime) / 1000); const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), s = diff % 60; document.getElementById("dashUptime").textContent = h + "h " + m + "m " + s + "s"; }
+
+function addTerminalLine(text, type) {
+  const t = document.getElementById("terminalBody"); if (!t) return;
+  const line = document.createElement("div"); line.className = "terminal-line";
+  const time = new Date().toLocaleTimeString("vi-VN");
+  const cls = type === "error" ? "t-error" : type === "success" ? "t-success" : type === "info" ? "t-info" : type === "warn" ? "t-warn" : "";
+  line.innerHTML = "<span class=\"t-prompt\">[" + time + "]</span> <span class=\"" + cls + "\">" + escapeHtml(text) + "</span>";
+  t.appendChild(line); t.scrollTop = t.scrollHeight;
+}
+function clearTerminal() { document.getElementById("terminalBody").innerHTML = "<div class=\"terminal-line\">Terminal cleared. Type <span class=\"t-info\">help</span> for commands.</div>"; }
+async function executeCommand() {
+  const input = document.getElementById("terminalInput"), cmd = input.value.trim(); if (!cmd) return;
+  addTerminalLine("$ " + cmd, "info"); input.value = "";
+  const args = cmd.split(" "), command = args[0].toLowerCase();
+  switch (command) {
+    case "help": addTerminalLine("Available commands:", "info"); ["help - Show help","balance - Wallet balance","status - Bot status","bots - List bot files","start - Start bot","stop - Stop bot","restart - Restart bot","plans - Show plans","clear - Clear terminal","whoami - Current user"].forEach(c => addTerminalLine("  " + c, "info")); break;
+    case "balance": try { const w = await api("/wallet"); addTerminalLine("Balance: " + formatMoney(w.balance), "success"); } catch (e) { addTerminalLine("Error: " + e.message, "error"); } break;
+    case "status": try { const s = await api("/bot/status"); addTerminalLine("Bot: " + (s.running ? "ONLINE" : "OFFLINE") + " | Files: " + s.files + " | PID: " + (s.pid || "N/A"), "info"); } catch (e) { addTerminalLine("Error: " + e.message, "error"); } break;
+    case "bots": try { const f = await api("/bot/files"); if (!f.files.length) addTerminalLine("No bot files.", "error"); else f.files.forEach((b, i) => addTerminalLine("[" + i + "] " + b.name + " (" + formatSize(b.size) + ")", "info")); } catch (e) { addTerminalLine("Error: " + e.message, "error"); } break;
+    case "start": startBot(); break; case "stop": stopBot(); break; case "restart": restartBot(); break;
+    case "plans": addTerminalLine("Plans: BASIC 10K/tuan | PRO 30K/thang | ULTIMATE 100K/nam", "info"); break;
+    case "clear": clearTerminal(); break;
+    case "whoami": addTerminalLine("User: " + (currentUser ? (currentUser.name || currentUser.username) : "Guest") + " | Role: " + (currentUser && currentUser.isAdmin ? "ADMIN" : "USER"), "info"); break;
+    default: addTerminalLine("Command not found: " + command + ". Type 'help' for available commands.", "error");
+  }
+}
+function escapeHtml(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+async function generateCode() {
+  if (!currentUser || !currentUser.isAdmin) { showToast("Ban khong co quyen admin!", "error"); return; }
+  const code = document.getElementById("adminCodeName").value.trim().toUpperCase(), limit = parseInt(document.getElementById("adminCodeUses").value) || 100, amount = parseInt(document.getElementById("adminCodeAmount").value) || 50000;
+  try {
+    const data = await api("/admin/code", { method: "POST", body: { code: code || undefined, amount, maxUses: limit } });
+    document.getElementById("generatedCodeText").textContent = data.code;
+    document.getElementById("generatedCodeInfo").textContent = "So tien: " + formatMoney(amount) + " | Luot: " + limit;
+    document.getElementById("codeGenResult").classList.add("show");
+    showToast("Code " + data.code + " da tao!", "gold");
+    addTerminalLine("Admin generated code: " + data.code + " | amount: " + amount + " | uses: " + limit, "warn");
+    await loadAdminCodes();
+  } catch (e) { showToast(e.message, "error"); }
+}
+function copyGeneratedCode() { const code = document.getElementById("generatedCodeText").textContent; navigator.clipboard.writeText(code).then(() => showToast("Da copy code!", "success")); }
+async function loadAdminCodes() {
+  if (!currentUser || !currentUser.isAdmin) return;
+  try {
+    const codes = await api("/admin/codes"), tbody = document.getElementById("adminCodesTable");
+    if (!codes.length) { tbody.innerHTML = "<tr><td colspan=\"6\" style=\"text-align:center; color:var(--text-muted);\">Chua co code nao</td></tr>"; return; }
+    tbody.innerHTML = codes.map(c => { const remaining = c.maxUses - c.usedCount; const status = remaining > 0 ? "<span style=\"color:var(--success);\">✓ Con hieu luc</span>" : "<span style=\"color:var(--danger);\">✗ Het luot</span>"; return "<tr><td><strong style=\"color:var(--red-bright); font-family:Orbitron;\">" + c.code + "</strong></td><td>" + formatMoney(c.amount) + "</td><td>" + c.maxUses + "</td><td>" + c.usedCount + "</td><td>" + remaining + "</td><td>" + status + "</td></tr>"; }).join("");
+  } catch (e) { console.error(e); }
+}
+async function saveSettings() {
+  const name = document.getElementById("settingDisplayName").value.trim();
+  if (name) { currentUser.name = name; document.getElementById("headerName").textContent = name; document.getElementById("settingsName").textContent = name; }
+  showToast("Da luu cai dat!", "success");
+}
+
+function showToast(message, type) {
+  const container = document.getElementById("toastStack"), toast = document.createElement("div");
+  toast.className = "toast toast-" + type; toast.textContent = message;
+  container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+}
+function initParticles() {
+  const container = document.getElementById("particles"); if (!container) return;
+  container.innerHTML = "";
+  for (let i = 0; i < 25; i++) { const p = document.createElement("div"); p.className = "particle"; p.style.left = Math.random() * 100 + "vw"; p.style.animationDuration = (10 + Math.random() * 15) + "s"; p.style.animationDelay = Math.random() * 12 + "s"; p.style.opacity = Math.random() * 0.4 + 0.1; container.appendChild(p); }
+}
+window.addEventListener("DOMContentLoaded", () => { if (token) { initApp(); } else { initParticles(); } });
+</script>
+</body>
+</html>
